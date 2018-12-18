@@ -5,7 +5,7 @@
   <title>tracking.js - color with camera</title>
   <link rel="stylesheet" href="assets/demo.css">
 
-  <script src="build/tracking-min.js"></script>
+  <script src="../build/tracking-min.js"></script>
   <script src="js/dat.gui.min.js"></script>
 
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -78,12 +78,19 @@ window.onload = function() {
 
   startValue = 0;
 
+  show1 = 0;
+  show2 = 0;  
+
   tracker.on('track', function(event) {
 
-    show1 = 0;
-    show2 = 0;  
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-    if(!event.data && startValue == 1){
+    if(event.data.length === 0 && startValue == 1){
+
+      show1 = 0;
+      show2 = 0;  
+
+      document.getElementById("scan").style.visibility = "visible";
 
       video1.style.visibility = 'hidden';
       video1.pause();
@@ -92,19 +99,23 @@ window.onload = function() {
       return;
     } 
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
     event.data.forEach(function(rect) {
 
       if(startValue == 1)
       {
         if(rect.color == 'cyan')
         {
-          if(rect.width > 100)
+          if(rect.width > 150 && rect.width < 400)
           {
             if(show1 == 0)
             {
               show1 = 1;
+
+              document.getElementById("scan").style.visibility = "hidden";
+              document.getElementById("init").style.visibility = "visible";
+
+              fadeIn(document.getElementById("init"));
+
               video1.style.top = rect.y + 'px';  
               video1.style.width = ((rect.width + 40) * 1.778) + 'px';  
               video1.style.height = (rect.width + 40) + 'px';  
@@ -118,26 +129,34 @@ window.onload = function() {
             show2 = 0;
 
             video2.pause();
-            video2.display = 'none';
+            video2.display = 'hidden';
+
+            return;
 
           }else{
 
-            show1 = 0;
+            // show1 = 0;
 
-            video1.pause();
-            video1.display = 'none';
+            // video1.pause();
+            // video1.display = 'hidden';
           }
         }else if(rect.color == 'yellow')
         {
-          if(rect.width > 100 && rect.height > 100 && rect.width < 400 && rect.height < 400)
+          if(rect.width > 150 && rect.height > 150 && rect.width < 400 && rect.height < 400)
           {
             if(show2 == 0)
             {
               show2 = 1;
+
+              document.getElementById("scan").style.visibility = "hidden";
+              document.getElementById("init").style.visibility = "visible";
+
+              fadeIn(document.getElementById("init"));
+
               video2.style.left = (rect.x - 10) + 'px';  
               video2.style.top = (rect.y - 10) + 'px';  
               video2.style.width = (rect.width + 20) + 'px';  
-              video2.style.height = (rect.height + 20) + 'px';  
+              video2.style.height = (rect.width + 20) + 'px';  
               video2.style.visibility = 'visible';
               video2.play();
             }
@@ -145,13 +164,15 @@ window.onload = function() {
             show1 = 0;
 
             video1.pause();
-            video1.display = 'none';
+            video1.display = 'hidden';
+
+            return;
 
           }else{
-            show2 = 0;
+            // show2 = 0;
 
-            video2.pause();
-            video2.display = 'none';
+            // video2.pause();
+            // video2.display = 'none';
           }
         }
       }
@@ -290,8 +311,6 @@ function Func1() {
   var a = Math.round(totalCount * 50 + prog / 2);
   var _percent = a / 100 * 25.5;
   $('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
-
-  console.log("111");
 }
 
 function Func2() {
@@ -344,12 +363,16 @@ function setImageVisible(id, visible) {
 function fadeIn(el) {
     el.style.opacity = 1;
     var tick = function () {
-        el.style.opacity = el.style.opacity - 0.01;
+        el.style.opacity = el.style.opacity - 0.05;
         if (el.style.opacity > 0) {
             (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 2)
         }
     };
     tick();
+
+    console.log("fade");
+
+//    el.style.visibility = 'hidden';
 }
 
 // Detach the Tracks from the DOM.
