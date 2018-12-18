@@ -5,7 +5,7 @@
   <title>tracking.js - color with camera</title>
   <link rel="stylesheet" href="assets/demo.css">
 
-  <script src="../build/tracking-min.js"></script>
+  <script src="build/tracking-min.js"></script>
   <script src="js/dat.gui.min.js"></script>
 
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -38,6 +38,8 @@
 <script>
 var startValue;
 
+var cam, canvas, main;
+
 var myWidth = 0;
 var myHeight = 0;
 
@@ -50,6 +52,8 @@ getSize();
 
 window.onload = function() {
  
+  cam = document.getElementById('cam');
+  canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
 
   var tracker = new tracking.ColorTracker();
@@ -101,12 +105,26 @@ window.onload = function() {
 
     event.data.forEach(function(rect) {
 
+      context.strokeStyle = rect.color;
+      context.strokeRect(rect.x - cam.width / 3.5, rect.y, rect.width, rect.height);
+      context.font = '11px Helvetica';
+      context.fillStyle = "#fff";
+      context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+      context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+
       if(startValue == 1)
       {
         if(rect.color == 'cyan')
         {
-          if(rect.width > 150 && rect.width < 400)
+          console.log("cyan" + rect.width);
+
+          if(rect.width > 350 && rect.width < 750)
           {
+              video1.style.top = rect.y + 'px';  
+              video1.style.width = ((rect.width + 0) * 1.778);  
+              video1.style.height = (rect.width + 0);  
+              video1.style.left = (rect.x - cam.width / 3.5) + rect.width / 2 - ((rect.width) * 1.778) / 2 + 'px';  
+
             if(show1 == 0)
             {
               show1 = 1;
@@ -116,13 +134,7 @@ window.onload = function() {
 
               fadeIn(document.getElementById("init"));
 
-              video1.style.top = rect.y + 'px';  
-              video1.style.width = ((rect.width + 40) * 1.778) + 'px';  
-              video1.style.height = (rect.width + 40) + 'px';  
-              video1.style.left = (rect.x - (rect.width + 40) * 1.778 / 4) + 'px';  
-
               video1.style.visibility = "visible";
-
               video1.play();
             }
 
@@ -142,8 +154,13 @@ window.onload = function() {
           }
         }else if(rect.color == 'yellow')
         {
-          if(rect.width > 150 && rect.height > 150 && rect.width < 400 && rect.height < 400)
+          if(rect.width > 400 && rect.height > 400 && rect.width < 900 && rect.height < 900)
           {
+              video2.style.left = (rect.x - 0) - cam.style.left + 'px';  
+              video2.style.top = (rect.y - 0) + 'px';  
+              video2.style.width = (rect.width + 0) + 'px';  
+              video2.style.height = (rect.width + 0) + 'px';  
+
             if(show2 == 0)
             {
               show2 = 1;
@@ -153,12 +170,8 @@ window.onload = function() {
 
               fadeIn(document.getElementById("init"));
 
-              video2.style.left = (rect.x - 10) + 'px';  
-              video2.style.top = (rect.y - 10) + 'px';  
-              video2.style.width = (rect.width + 20) + 'px';  
-              video2.style.height = (rect.width + 20) + 'px';  
-              video2.style.visibility = 'visible';
-              video2.play();
+              // video2.style.visibility = 'visible';
+              // video2.play();
             }
 
             show1 = 0;
@@ -176,27 +189,7 @@ window.onload = function() {
           }
         }
       }
-
-      context.strokeStyle = rect.color;
-      context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-      context.font = '11px Helvetica';
-      context.fillStyle = "#fff";
-      context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-      context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
     });
-
-    if(startValue == 1)
-    {
-      if(show1 == 0)
-      {
-        video1.pause();
-        video1.display = 'none';
-      }else if(show2 == 0)
-      {
-        video2.pause();
-        video2.display = 'none';
-      }
-    }
   });
 
   GUIControllers(tracker);
@@ -295,12 +288,14 @@ function getSize() {
   var cam = document.getElementById('cam');
   var canvas = document.getElementById('canvas');
   var main = document.getElementById('main');
-  cam.width = 1000;//myHeight * 4 / 3;
-  cam.height = 750;//myHeight;
-//      cam.style.left = -cam.width / 3.5 + "px";
 
-  canvas.width = 1000;//myHeight * 4 / 3;
-  canvas.height = 750;//myHeight;
+  cam.width = myHeight * 4 / 3;
+  cam.height = myHeight;
+  cam.style.left = -cam.width / 3.5 + "px";
+
+  canvas.width = myWidth;//myHeight * 4 / 3;
+  canvas.height = myHeight;
+//  canvas.style.left = -cam.width / 3.5 + "px";
 
   main.width = myWidth;
   main.height = myHeight;
@@ -369,10 +364,6 @@ function fadeIn(el) {
         }
     };
     tick();
-
-    console.log("fade");
-
-//    el.style.visibility = 'hidden';
 }
 
 // Detach the Tracks from the DOM.
